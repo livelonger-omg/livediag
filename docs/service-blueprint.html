@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>服务蓝图 · 家宽直播上行质量投诉处理</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#131a23; --panel2:#18212c; --line:#243040;
+    --text:#e6edf3; --sub:#8b98a8; --dim:#5d6b7d;
+    --brand:#00a0e9; --good:#2fae7a; --warn:#d4913f; --bad:#e2603c; --bad2:#c0392b;
+    --purple:#a97bff; --col:210px; --label:136px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--text);
+    font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",-apple-system,"Segoe UI",sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1560px;margin:0 auto;padding:28px 24px 64px}
+  a{color:var(--brand);text-decoration:none}
+
+  header.top{border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:20px}
+  .kicker{font-size:12px;letter-spacing:.14em;color:var(--brand)}
+  h1{margin:8px 0 6px;font-size:26px;font-weight:700}
+  h1 small{display:block;font-size:13.5px;font-weight:400;color:var(--sub);margin-top:8px}
+  .meta{display:flex;flex-wrap:wrap;gap:8px 24px;margin-top:13px;font-size:12.5px;color:var(--sub)}
+  .meta b{color:var(--text);font-weight:600}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}
+  .badge{font-size:12px;border:1px solid var(--line);background:var(--panel);padding:5px 11px;border-radius:999px;color:var(--sub)}
+  .badge.on{border-color:rgba(0,160,233,.5);color:var(--brand);background:rgba(0,160,233,.1)}
+
+  h2.sec{font-size:16px;margin:30px 0 6px}
+  .sec-sub{font-size:12.5px;color:var(--sub);margin-bottom:12px;line-height:1.8}
+
+  /* ---------- 蓝图主体 ---------- */
+  .scroller{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+  .inner{min-width:1400px}
+  .layer{display:grid;grid-template-columns:var(--label) repeat(6,var(--col))}
+  .layer > div{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:11px 13px}
+  .layer > div:nth-child(7n){border-right:none}
+  .rowlabel{background:var(--panel2);display:flex;flex-direction:column;justify-content:center;gap:3px;
+    position:sticky;left:0;z-index:4}
+  .rowlabel b{font-size:12.5px}
+  .rowlabel span{font-size:10.5px;color:var(--dim);letter-spacing:.04em}
+  .cell{font-size:12.3px;line-height:1.72}
+  .cell ul{margin:0;padding-left:15px}
+  .cell li{margin-bottom:4px}
+  .cell li:last-child{margin-bottom:0}
+
+  .stages{position:sticky;top:0;z-index:5;background:rgba(13,17,23,.96);backdrop-filter:blur(4px)}
+  .head{display:grid;grid-template-columns:var(--label) repeat(6,var(--col))}
+  .head > div{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px 13px}
+  .head > div:nth-child(7n){border-right:none}
+  .head .rowlabel{background:transparent}
+  .head .st{background:linear-gradient(180deg,rgba(0,160,233,.16),rgba(0,160,233,.02))}
+  .head .st .no{font-size:10.5px;color:var(--brand);letter-spacing:.08em}
+  .head .st .nm{font-size:13.5px;font-weight:700;margin-top:3px}
+  .head .st .du{font-size:10.5px;color:var(--sub);margin-top:2px}
+
+  /* 三条线 */
+  .divider{display:grid;grid-template-columns:var(--label) 1fr;
+    background:rgba(0,160,233,.055);border-bottom:1px solid var(--line)}
+  .divider .lb{font-size:11px;color:var(--brand);padding:7px 13px;letter-spacing:.02em;
+    background:var(--panel2);position:sticky;left:0;z-index:4}
+  .divider .ln{display:flex;align-items:center;padding:0 13px;font-size:11px;color:var(--dim)}
+  .divider .ln i{flex:1;border-top:2px dashed rgba(0,160,233,.45);margin-right:10px}
+
+  .evi{color:#c9afff}
+  .sys{color:#7fd0f5}
+  .peo{color:#e8bd82}
+  .num{display:inline-block;font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:5px;margin-right:5px}
+  .f{background:rgba(226,96,60,.16);border:1px solid rgba(226,96,60,.4);color:#ff9e86}
+  .w{background:rgba(212,145,63,.14);border:1px solid rgba(212,145,63,.38);color:#e8bd82}
+  .k{background:rgba(47,174,122,.13);border:1px solid rgba(47,174,122,.34);color:#7fd6ab}
+
+  /* ---------- 分析表 ---------- */
+  table{width:100%;border-collapse:collapse;font-size:12.4px;background:var(--panel);
+    border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.72}
+  th{background:var(--panel2);font-size:11.8px;color:var(--sub);font-weight:600;white-space:nowrap}
+  tr:last-child td{border-bottom:none}
+  td.stage{color:var(--brand);white-space:nowrap;font-weight:600}
+  .pill{display:inline-block;font-size:10.8px;padding:2px 8px;border-radius:999px;white-space:nowrap}
+  .pill.hi{background:rgba(226,96,60,.14);border:1px solid rgba(226,96,60,.36);color:#ff9e86}
+  .pill.mid{background:rgba(212,145,63,.13);border:1px solid rgba(212,145,63,.34);color:#e8bd82}
+  .pill.lo{background:rgba(139,152,168,.12);border:1px solid rgba(139,152,168,.3);color:#aeb9c7}
+  .pill.ok{background:rgba(47,174,122,.13);border:1px solid rgba(47,174,122,.34);color:#7fd6ab}
+
+  .chartbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px 8px;margin-top:12px}
+  .chartbox .hd{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
+  .chartbox h3{margin:0;font-size:14px}
+  .legend{display:flex;gap:16px;font-size:11.5px;color:var(--sub)}
+  .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+  canvas{display:block;width:100%;height:270px}
+
+  .ask{background:var(--panel);border:1px solid rgba(212,145,63,.35);border-radius:12px;padding:15px 20px;margin-top:16px}
+  .ask h3{margin:0 0 8px;font-size:13.5px;color:var(--warn)}
+  .ask ol{margin:0;padding-left:20px;font-size:12.6px;line-height:1.95}
+  .note{background:var(--panel);border:1px solid rgba(47,174,122,.3);border-radius:12px;padding:15px 20px;margin-top:12px}
+  .note h3{margin:0 0 8px;font-size:13.5px;color:var(--good)}
+  .note ul{margin:0;padding-left:20px;font-size:12.6px;line-height:1.95}
+  .note li b{color:var(--text)}
+  .note .cf{color:var(--warn)}
+  .sla{color:var(--brand);font-weight:600}
+  .est{color:var(--dim)}
+  footer{margin-top:28px;border-top:1px solid var(--line);padding-top:13px;font-size:11.5px;color:var(--dim);line-height:1.9}
+  @media print{body{background:#fff;color:#111}.scroller{overflow:visible}.inner{min-width:0}
+    .layer,.head{grid-template-columns:110px repeat(6,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="kicker">Service Blueprint · 立项支撑材料（二）</div>
+    <h1>家宽直播上行质量投诉处理 · 现状服务蓝图
+      <small>配套 <a href="as-is-journey-map.html">现状用户旅程地图</a> ｜ 中国移动湖南公司有线中心 · LiveDiag 项目</small>
+    </h1>
+    <div class="meta">
+      <div>蓝图类型：<b>现状（As-Is）</b></div>
+      <div>泳道：<b>5 层 + 3 条分界线</b></div>
+      <div>阶段：<b>与旅程地图一致的 6 阶段</b></div>
+      <div>标注：<b>失效点 F×15、等待点 W×6、指标 18 项</b></div>
+      <div>现行 SLA：<b><span class="sla">受理 10min · 上门 1h · 结单 6h</span></b></div>
+      <div>版本：<b>v2（责任归属与指标口径已按一线确认）</b></div>
+    </div>
+    <div class="badges">
+      <span class="badge on">责任判定：属地装维｜跨专业协同：微信群</span>
+      <span class="badge on">互动线 · 可见性线 · 内部互动线</span>
+      <span class="badge on">失效点 → 根因 → 自动化机会</span>
+      <span class="badge on">口径已核对 · 仅覆盖家宽</span>
+    </div>
+  </header>
+
+  <h2 class="sec">一、蓝图主体</h2>
+  <div class="sec-sub">
+    阅读方式：自上而下看“客户经历了什么 → 谁在接待 → 谁在后台支撑 → 靠什么系统”，三条横线标出客户可见与不可见的边界。
+    单元格内的 <span class="num f">F</span> 为失效点（服务在此处容易失败），<span class="num w">W</span> 为等待点（客户或流程在空等），<span class="num k">K</span> 为指标与 SLA，其中<span class="sla">蓝色</span>为已确认的硬时限，灰色为待统计的估算值。
+  </div>
+
+  <div class="scroller">
+    <div class="inner">
+
+      <!-- 阶段表头 -->
+      <div class="stages">
+        <div class="head">
+          <div class="rowlabel"><b>阶段</b><span>Phase</span></div>
+          <div class="st"><div class="no">阶段 01</div><div class="nm">投诉受理</div><div class="du">SLA T+10min 建单</div></div>
+          <div class="st"><div class="no">阶段 02</div><div class="nm">远程初判</div><div class="du">SLA T+1h 内上门</div></div>
+          <div class="st"><div class="no">阶段 03</div><div class="nm">开播复现</div><div class="du">黄金档 19–23 点</div></div>
+          <div class="st"><div class="no">阶段 04</div><div class="nm">定界定责</div><div class="du">2h ～ 2d</div></div>
+          <div class="st"><div class="no">阶段 05</div><div class="nm">处置验证</div><div class="du">1 ～ 4h</div></div>
+          <div class="st"><div class="no">阶段 06</div><div class="nm">回访归档</div><div class="du">SLA T+6h 结单</div></div>
+        </div>
+      </div>
+
+      <!-- 1 物理证据 -->
+      <div class="layer">
+        <div class="rowlabel"><b>物理证据</b><span>Physical Evidence</span></div>
+        <div class="cell evi"><ul><li>10086 工单号 / 短信</li><li>微信聊天与语音记录</li><li>上门预约通知</li></ul></div>
+        <div class="cell evi"><ul><li>测速截图（多为下行）</li><li>光猫指示灯照片</li><li>ping 结果截图</li></ul></div>
+        <div class="cell evi"><ul><li>直播伴侣码率 / 丢帧面板</li><li>客户录屏（偶有）</li><li>工程师手写时间点记录</li></ul></div>
+        <div class="cell evi"><ul><li>tracert / ping 截图</li><li>网管光功率截图</li><li>微信群里口头结论</li><li><b>通常没有正式报告</b></li></ul></div>
+        <div class="cell evi"><ul><li>更换线缆/设备照片</li><li>处置前后对比（凭体感）</li><li>工单处理记录</li></ul></div>
+        <div class="cell evi"><ul><li>回访通话记录</li><li>工单结单结论</li><li>少量照片归档</li></ul></div>
+      </div>
+
+      <!-- 2 客户行为 -->
+      <div class="layer">
+        <div class="rowlabel"><b>客户行为</b><span>Customer Actions</span></div>
+        <div class="cell peo"><ul><li>报障、描述“卡/糊/断”</li><li>提供宽带账号与设备信息</li><li>等待回电 <span class="num w">W1</span></li></ul></div>
+        <div class="cell peo"><ul><li>按指导重启光猫、路由器</li><li>跑测速、拍照片</li><li>配合度直接决定初判效果 <span class="num f">F5</span></li></ul></div>
+        <div class="cell peo"><ul><li>等待晚间黄金档才能复现 <span class="num w">W3</span></li><li>约定时间开播配合观察</li><li>黄金档（19–23 点）不能停播</li><li>等待工程师到位 <span class="num w">W4</span></li></ul></div>
+        <div class="cell peo"><ul><li>等待结论</li><li>反复被要求“再试一次”</li><li>开始质疑网络质量 <span class="num w">W5</span></li></ul></div>
+        <div class="cell peo"><ul><li>配合换线、改信道、重启</li><li>再次开播验证</li><li>不确定是否真的修好</li></ul></div>
+        <div class="cell peo"><ul><li>接听回访电话</li><li>给出体感评价</li><li>等待最终结单结论 <span class="num w">W6</span></li></ul></div>
+      </div>
+
+      <div class="divider"><div class="lb">互动线</div><div class="ln"><i></i>Line of Interaction ｜ 客户与前台直接接触的边界</div></div>
+
+      <!-- 3 前台 -->
+      <div class="layer">
+        <div class="rowlabel"><b>前台（可见）</b><span>Frontstage</span></div>
+        <div class="cell"><ul><li>10086 坐席受理、建单、定级</li><li>网格经理首次联系客户</li><li>判断是否“直播类” <span class="num f">F1</span></li></ul></div>
+        <div class="cell"><ul><li>装维工程师电话指导</li><li>解读测速结果 <span class="num f">F3</span></li><li>是否上门的经验判断</li></ul></div>
+        <div class="cell"><ul><li>远程连线 / 上门观察</li><li>手工记录卡顿时刻</li><li>现场无法持续采集 <span class="num f">F6</span></li></ul></div>
+        <div class="cell"><ul><li>属地装维给出“哪一段的问题”结论</li><li>凭经验 + 零散截图 <span class="num f">F9</span></li><li>面对质疑缺少证据 <span class="num f">F11</span></li></ul></div>
+        <div class="cell"><ul><li>实施常规处置动作</li><li>复测体感 <span class="num f">F13</span></li><li>判断能否结单</li></ul></div>
+        <div class="cell"><ul><li>客服回访满意度</li><li>填写结单结论 <span class="num f">F14</span></li></ul></div>
+      </div>
+
+      <div class="divider"><div class="lb">可见性线</div><div class="ln"><i></i>Line of Visibility ｜ 客户看不到的后台工作从这里开始</div></div>
+
+      <!-- 4 后台 -->
+      <div class="layer">
+        <div class="rowlabel"><b>后台（不可见）</b><span>Backstage</span></div>
+        <div class="cell"><ul><li>工单派发到属地班组 <span class="num w">W2</span></li><li>宽带账号 / 在网状态核验</li><li>投诉分类与统计口径 <span class="num f">F2</span></li></ul></div>
+        <div class="cell"><ul><li>网管查 PON 口、光功率</li><li>ONU 在线时长 / 认证状态</li><li>RMS 远程下发参数</li><li>无法给出上行质量数据 <span class="num f">F4</span></li></ul></div>
+        <div class="cell"><ul><li>值班支撑在线协同（微信群）</li><li>排班与客户开播时段错配 <span class="num f">F7</span></li><li>临时部署采集工具受限 <span class="num f">F8</span></li></ul></div>
+        <div class="cell"><ul><li><b>属地装维</b>自行判定责任段</li><li>微信群找有线中心 / 平台支撑</li><li>协同结论只有口头，无工单留痕 <span class="num f">F10</span></li><li>发起线路测试或二次派单</li></ul></div>
+        <div class="cell"><ul><li>线路故障单 / 光路调整</li><li>更换端口、调整 QoS</li><li>缺处置前基线 <span class="num f">F12</span></li></ul></div>
+        <div class="cell"><ul><li>工单归档、质量抽检</li><li>经验停留在个人 <span class="num f">F15</span></li><li>无知识库沉淀</li></ul></div>
+      </div>
+
+      <div class="divider"><div class="lb">内部互动线</div><div class="ln"><i></i>Line of Internal Interaction ｜ 后台与支撑系统、跨专业协同的边界</div></div>
+
+      <!-- 5 支撑系统 -->
+      <div class="layer">
+        <div class="rowlabel"><b>支撑流程与系统</b><span>Support Processes</span></div>
+        <div class="cell sys"><ul><li>10086 客服系统 / CRM</li><li>工单系统（派单、时限）</li><li>宽带账号 / AAA 认证</li><li>装维 App</li></ul></div>
+        <div class="cell sys"><ul><li>NMS / EMS（OLT、PON 口）</li><li>RMS 远程管理</li><li>测速平台（下行主导）</li><li>无“上行质量”采集能力</li></ul></div>
+        <div class="cell sys"><ul><li>抖音直播伴侣（客户侧）</li><li>远程桌面 / 向日葵</li><li>命令行 ping / tracert</li><li>微信（事实上的一线工单）</li></ul></div>
+        <div class="cell sys"><ul><li>网管系统</li><li>拨测 / 线路测试系统</li><li><b>微信群</b>（跨专业协同的事实通道）</li><li>缺分段质量数据源</li></ul></div>
+        <div class="cell sys"><ul><li>装维工单 App</li><li>RMS 参数下发</li><li>光路 / 端口资源系统</li><li>直播伴侣（验证用）</li></ul></div>
+        <div class="cell sys"><ul><li>工单系统（结单）</li><li>客服回访系统</li><li>知识库（未真正使用）</li><li>无会话级数据归档</li></ul></div>
+      </div>
+
+      <!-- 6 失效点/等待点 -->
+      <div class="layer">
+        <div class="rowlabel"><b>失效点 / 等待点</b><span>Fail &amp; Wait</span></div>
+        <div class="cell"><span class="num f">F1</span><span class="num f">F2</span><span class="num w">W1</span><span class="num w">W2</span></div>
+        <div class="cell"><span class="num f">F3</span><span class="num f">F4</span><span class="num f">F5</span></div>
+        <div class="cell"><span class="num f">F6</span><span class="num f">F7</span><span class="num f">F8</span><span class="num w">W3</span><span class="num w">W4</span></div>
+        <div class="cell"><span class="num f">F9</span><span class="num f">F10</span><span class="num f">F11</span><span class="num w">W5</span></div>
+        <div class="cell"><span class="num f">F12</span><span class="num f">F13</span></div>
+        <div class="cell"><span class="num f">F14</span><span class="num f">F15</span><span class="num w">W6</span></div>
+      </div>
+
+      <!-- 7 指标 -->
+      <div class="layer">
+        <div class="rowlabel"><b>指标 / SLA</b><span>Metrics</span></div>
+        <div class="cell"><span class="num k">K</span><span class="sla">建单 ≤10min</span><br>直播类标识率 <span class="est">&lt;5%</span><br>分类准确率 <span class="est">≈60%</span></div>
+        <div class="cell"><span class="num k">K</span><span class="sla">上门 ≤1h</span><br>远程解决率 <span class="est">≈20%</span><br>无效上门率 <span class="est">≈25%</span></div>
+        <div class="cell"><span class="num k">K</span>复现成功率 <span class="est">≈40%</span><br>约测次数 <span class="est">≈2 次</span><br>跨天复现占比 <span class="est">≈55%</span></div>
+        <div class="cell"><span class="num k">K</span>一次定界成功率 <span class="est">≈45%</span><br>微信群协同耗时 <span class="est">≈6h</span><br>责任争议率 <span class="est">≈30%</span></div>
+        <div class="cell"><span class="num k">K</span>一次修复率 <span class="est">≈55%</span><br>二次返工率 <span class="est">≈30%</span><br>处置时长 <span class="est">2.5h</span></div>
+        <div class="cell"><span class="num k">K</span><span class="sla">结单 ≤6h</span><br>一次解决率 <span class="est">待统计</span><br>重复投诉率 <span class="est">待统计</span></div>
+      </div>
+
+    </div>
+  </div>
+  <div class="note">
+    <h3>指标口径（按一线答复固化，可直接引用）</h3>
+    <ul>
+      <li><b>时限 SLA</b>：受理建单 <span class="sla">T+10min</span> ｜ 上门 <span class="sla">T+1h</span> ｜ 结单 <span class="sla">T+6h</span>。</li>
+      <li><b>一次解决率</b> = 投诉一次上门解决数 ÷ 投诉总数；其中“一次上门解决”指<b>当日一次上门</b>解决投诉问题并完成工单归档。</li>
+      <li><b>重复投诉率</b> = 近 30 天投诉量 &gt; 1 次的客户数 ÷ 近 30 天投诉客户数。</li>
+      <li class="cf"><b>口径冲突（关键发现）</b>：结单时限 6 小时，而直播卡顿只在晚间黄金档（19–23 点）复现，两者在时间上天然互斥。现行考核下装维只能“先按体感结单、夜间暴露再返工”，这直接抬高二次返工率与重复投诉率，并让“一次解决率”失真——不是执行不到位，而是指标结构不适配直播场景。同理，1h 上门时限几乎不留远程初判窗口，<b>远程解决率长期偏低也是结构性的</b>。</li>
+      <li class="cf"><b>统计盲区</b>：上述两项指标均依赖工单能识别“直播类”，而现状直播类标识率 &lt;5%（F1），因此<b>直播类的一次解决率、重复投诉率当前无法单独统计</b>，这是阶段 01 必须打标的直接理由。</li>
+      <li class="est">未标为蓝色的数值为一线估算示例，待工单系统真实统计替换；蓝色 SLA 与两条指标口径已确认，不再待定。</li>
+    </ul>
+  </div>
+
+  <h2 class="sec">二、人工负荷与系统支撑度（缺口可视化）</h2>
+  <div class="sec-sub">柱：每单在该阶段的人工投入（小时，估算）；线：该阶段“系统可提供的客观数据覆盖度”（0–100 分，按现有系统能力评估）。两者背离越大，越是应该被工具替代的环节。</div>
+  <div class="chartbox">
+    <div class="hd">
+      <h3>各阶段人工投入 vs 系统数据支撑度</h3>
+      <div class="legend">
+        <span><i style="background:#e2603c"></i>人工投入（小时）</span>
+        <span><i style="background:#00a0e9"></i>系统数据支撑度（分）</span>
+      </div>
+    </div>
+    <canvas id="gap"></canvas>
+  </div>
+
+  <h2 class="sec">三、失效点清单：根因与可自动化性</h2>
+  <div class="sec-sub">“可自动化性”用于排序建设优先级：高 = 现有 LiveDiag 能力可直接覆盖；中 = 需要少量接口/规则；低 = 依赖组织流程或第三方。</div>
+  <table>
+    <thead><tr><th>编号</th><th>阶段</th><th>失效点</th><th>业务后果</th><th>根因</th><th>可自动化性</th><th>对应能力</th></tr></thead>
+    <tbody>
+      <tr><td><b>F1</b></td><td class="stage">01</td><td>直播类投诉无专用标签与分级</td><td>无法统计、无法优先派单</td><td>工单分类体系未覆盖直播场景</td><td><span class="pill mid">中</span></td><td>工单打标（二期接口）</td></tr>
+      <tr><td><b>F2</b></td><td class="stage">01</td><td>故障描述非结构化</td><td>关键信息（时段/平台/码率）缺失</td><td>无标准化采集模板</td><td><span class="pill mid">中</span></td><td>会话自动记录替代人工问询</td></tr>
+      <tr><td><b>F3</b></td><td class="stage">02</td><td>测速以下行为主，掩盖上行瓶颈</td><td>误判“网络正常”</td><td>测速平台指标偏下行</td><td><span class="pill hi">高</span></td><td>上行码率/上行丢包实时看板</td></tr>
+      <tr><td><b>F4</b></td><td class="stage">02</td><td>只有“通/不通”和光功率，无质量分段</td><td>无法提前排除接入网问题</td><td>缺分段 RTT/丢包采集</td><td><span class="pill hi">高</span></td><td>网关/接入跳/推流节点三段并列监测</td></tr>
+      <tr><td><b>F5</b></td><td class="stage">02</td><td>远程指导依赖客户配合度</td><td>初判失败率高、反复沟通</td><td>操作门槛在客户侧</td><td><span class="pill hi">高</span></td><td>零操作采集（常驻托盘自动识别开播）</td></tr>
+      <tr><td><b>F6</b></td><td class="stage">03</td><td>故障瞬时发生，无法回溯</td><td>抓不到现场，约测反复</td><td>无持续采集与留痕</td><td><span class="pill hi">高</span></td><td>会话自动开始/结束 + 断流事件记录</td></tr>
+      <tr><td><b>F7</b></td><td class="stage">03</td><td>客户开播时段与工程师班次错配</td><td>复现跨天、投诉升级</td><td>依赖人工守点</td><td><span class="pill hi">高</span></td><td>无人值守：程序自动记录，事后看报告</td></tr>
+      <tr><td><b>F8</b></td><td class="stage">03</td><td>临时部署采集工具受限（客户机器/权限）</td><td>现场无法取证</td><td>工具需安装与配置</td><td><span class="pill hi">高</span></td><td>免安装单文件 + 开机自启常驻</td></tr>
+      <tr><td><b>F9</b></td><td class="stage">04</td><td>缺分段质量证据，定界靠经验</td><td>一次定界成功率低</td><td>无“本机→网关→接入网→节点”证据链</td><td><span class="pill hi">高</span></td><td>五级分段定位 + 自动归因结论</td></tr>
+      <tr><td><b>F10</b></td><td class="stage">04</td><td>跨专业协同走微信群，无工单留痕</td><td>责任认定无据、协同耗时长</td><td>无共同事实源，结论只留在聊天记录里</td><td><span class="pill mid">中</span></td><td>统一报告作为共同事实源（可外发）</td></tr>
+      <tr><td><b>F11</b></td><td class="stage">04</td><td>缺可提交证据，平台不认</td><td>责任回归用户/属地</td><td>无规范报告与原始数据</td><td><span class="pill hi">高</span></td><td>HTML 报告 + CSV 原始数据 + 连接快照</td></tr>
+      <tr><td><b>F12</b></td><td class="stage">05</td><td>处置前后无同口径对比</td><td>无法证明修好，二次返工</td><td>缺处置前基线</td><td><span class="pill hi">高</span></td><td>会话内连续记录，处置前后曲线可比</td></tr>
+      <tr><td><b>F13</b></td><td class="stage">05</td><td>试错式处置</td><td>耗时、客户体验差</td><td>无定位即先换件</td><td><span class="pill mid">中</span></td><td>先定界后处置（工具给方向）</td></tr>
+      <tr><td><b>F14</b></td><td class="stage">06</td><td>结单无客观数据</td><td>无法复盘与考核</td><td>归档仅文字结论</td><td><span class="pill hi">高</span></td><td>报告即档案（质量分/首要原因/曲线）</td></tr>
+      <tr><td><b>F15</b></td><td class="stage">06</td><td>经验不沉淀</td><td>同类问题重复排查</td><td>缺案例库与模板</td><td><span class="pill mid">中</span></td><td>报告模板化，可积累为案例库</td></tr>
+    </tbody>
+  </table>
+
+  <h2 class="sec">四、服务差距（Gap）分析</h2>
+  <div class="sec-sub">按服务质量差距模型（Zeithaml）对照现状，明确“差距由哪个环节产生、由什么手段收敛”。</div>
+  <table>
+    <thead><tr><th>差距</th><th>定义</th><th>现状表现</th><th>证据来源</th><th>收敛手段</th></tr></thead>
+    <tbody>
+      <tr><td><b>G1 认知差距</b></td><td>管理者对客户期望理解不足</td><td>把直播投诉当普通上网故障处理，未识别“上行连续性”是核心诉求</td><td>工单无直播标签（F1/F2）</td><td>用旅程地图 + 会话数据量化“卡顿=上行”的真实占比</td></tr>
+      <tr><td><b>G2 标准差距</b></td><td>服务标准与客户期望不匹配</td><td>现行 SLA 只考核 10min/1h/6h 时限，无上行质量阈值；判定只看光功率与“通不通”；6h 结单与黄金档复现互斥</td><td>指标体系缺上行 RTT/丢包口径；时限结构不适配直播场景</td><td>定义质量分与分段阈值（网关/接入跳/节点）并纳入 SLA；直播类另设“次日复验”，不以当日结单论成败</td></tr>
+      <tr><td><b>G3 交付差距</b></td><td>标准执行不到位</td><td>依赖个人经验，同一故障不同人结论不同</td><td>F9/F13</td><td>工具给统一口径：自动采集 + 自动归因，减少人工判断</td></tr>
+      <tr><td><b>G4 沟通差距</b></td><td>对外承诺与实际交付不一致</td><td>“网络没问题”无证据支撑，客户不信</td><td>F11</td><td>可外发报告，用客户看得懂的曲线说明</td></tr>
+      <tr><td><b>G5 感知差距</b></td><td>客户感知与服务质量落差</td><td>问题“解决”后客户仍不敢信，次日晚间复发即再次投诉</td><td>重复投诉率（同一客户 30 天内 &gt;1 次）、二次返工率 ≈30%</td><td>处置前后对比 + 回访附报告，形成闭环感知</td></tr>
+    </tbody>
+  </table>
+
+  <h2 class="sec">五、蓝图 → 建设内容（可直接进立项文档）</h2>
+  <table>
+    <thead><tr><th>蓝图环节</th><th>现状失效点</th><th>建设内容（LiveDiag 能力）</th><th>验收口径</th><th>状态</th></tr></thead>
+    <tbody>
+      <tr><td class="stage">02 初判</td><td>F3 / F4</td><td>上行质量看板：推流/整机上行、网关与接入跳 RTT·抖动·丢包、推流节点 RTT·丢包</td><td>开机即显示，采样 5s 粒度，指标可回溯</td><td><span class="pill ok">已实现</span></td></tr>
+      <tr><td class="stage">03 复现</td><td>F5 / F6 / F7 / F8</td><td>零操作采集：免安装单文件、开机自启托盘常驻、自动识别推流进程（TCP 443/1935、IPv6、UDP）、会话自动开始与结束</td><td>客户无需操作即可产出完整会话记录；漏采率可测</td><td><span class="pill ok">已实现</span></td></tr>
+      <tr><td class="stage">04 定界</td><td>F9 / F10 / F11</td><td>五级分段定位与自动归因：自动逐跳定位“网关之后第一跳”并持续质检；异常自动生成“接入网/平台/本机”结论；HTML 报告 + CSV + 连接快照</td><td>报告能回答“问题在哪一段”，且可外发</td><td><span class="pill ok">已实现</span></td></tr>
+      <tr><td class="stage">05 处置</td><td>F12 / F13</td><td>同会话内处置前后对比（曲线 + 质量分），断流与恢复自动打点</td><td>处置效果可量化，不依赖体感</td><td><span class="pill ok">已实现</span></td></tr>
+      <tr><td class="stage">06 归档</td><td>F14 / F15</td><td>会话索引 + 报告长期留存（原始 30 天/报告 180 天），模板化便于沉淀案例</td><td>可检索、可批量导出、可做月度分析</td><td><span class="pill ok">已实现</span></td></tr>
+      <tr><td class="stage">01 受理</td><td>F1 / F2</td><td>工单标签与结构化字段（平台/时段/码率/设备）</td><td>直播类工单可统计、可分流</td><td><span class="pill lo">待建设</span></td></tr>
+      <tr><td class="stage">全流程</td><td>F10</td><td>与工单/网管系统对接：结果回填、报告随单、数据回流分析</td><td>诊断结果进入工单闭环，形成数据资产</td><td><span class="pill lo">待建设（二期）</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <h3>v2 变更记录（依据一线答复逐条更正）</h3>
+    <ul>
+      <li><b>系统名称</b>：10086 客服系统 / CRM / 工单系统 / NMS·EMS / RMS 经核对无误，全文保留原名。</li>
+      <li><b>责任边界</b>：阶段 04 判定责任由“有线中心专业判定”更正为<b>属地装维自行判定</b>；跨专业协同实际走<b>微信群</b>且无工单留痕，F10 相应由“无共同数据视图”细化为“协同无留痕、责任认定无据”。</li>
+      <li><b>SLA 与指标</b>：时限由估算更正为 <span class="sla">受理 10min / 上门 1h / 结单 6h</span>；写入“一次解决率”“重复投诉率”正式口径，并据此识别出 6h 结单与黄金档复现的口径冲突（见第一部分口径块）。</li>
+      <li><b>覆盖范围</b>：不增加政企专线 / 商宽泳道，本蓝图仅覆盖家宽场景，相关结论不外推至政企。</li>
+      <li class="est"><b>仍待补充</b>：各项估算值的真实统计（一次解决率、重复投诉率、复现成功率、无效上门率等），需工单系统按上述口径导出后替换。口径已定，取数即可。</li>
+    </ul>
+  </div>
+
+  <footer>
+    绘制方法：沿用旅程地图的 6 个阶段作为横轴，纵向按服务蓝图规范分“物理证据—客户行为—前台—后台—支撑系统”，以互动线/可见性线/内部互动线标注可见性边界；逐格识别失效点（F）与等待点（W），再以差距模型定位根因，并把可自动化项映射到 LiveDiag 现有能力，作为立项建设内容与验收依据。<br>
+    v2 说明：责任归属、协同方式、SLA 时限与指标口径均按一线答复更正；覆盖范围仅家宽，不含政企专线 / 商宽。<br>
+    中国移动湖南公司有线中心 · 直播上行质量在线诊断工具（LiveDiag）· 现状服务蓝图 v2 · 2026-11-26
+  </footer>
+</div>
+
+<script>
+(function(){
+  var cv = document.getElementById('gap');
+  var ctx = cv.getContext('2d');
+  var stages = ['01 受理','02 初判','03 复现','04 定界','05 处置','06 归档'];
+  var hours  = [0.5, 2.5, 3.0, 5.5, 2.5, 0.8];      // 人工投入（小时）
+  var cover  = [30, 35, 20, 25, 40, 20];            // 系统数据支撑度（0-100）
+
+  function resize(){
+    var dpr = window.devicePixelRatio || 1;
+    var w = cv.clientWidth, h = cv.clientHeight;
+    cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    draw(w, h);
+  }
+
+  function draw(w, h){
+    var padL = 54, padR = 54, padT = 18, padB = 40;
+    var cw = w - padL - padR, ch = h - padT - padB;
+    ctx.clearRect(0, 0, w, h);
+
+    var maxH = 6, maxC = 100;
+    var gw = cw / stages.length;
+    var barW = Math.min(46, gw * 0.34);
+
+    // 网格与左轴（小时）
+    ctx.font = '11px "Microsoft YaHei UI","Microsoft YaHei",sans-serif';
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    for (var i = 0; i <= maxH; i++){
+      var y = padT + ch - ch * i / maxH;
+      ctx.beginPath();
+      ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+      ctx.moveTo(padL, y); ctx.lineTo(padL + cw, y); ctx.stroke();
+      ctx.fillStyle = 'rgba(139,152,168,0.8)';
+      ctx.fillText(String(i), padL - 10, y);
+    }
+
+    // 右轴（分数）
+    ctx.textAlign = 'left';
+    for (var j = 0; j <= 4; j++){
+      var yy = padT + ch - ch * j / 4;
+      ctx.fillStyle = 'rgba(0,160,233,0.75)';
+      ctx.fillText(String(j * 25), padL + cw + 10, yy);
+    }
+
+    // 柱子
+    for (var k = 0; k < stages.length; k++){
+      var cx = padL + gw * (k + 0.5);
+      var bh = ch * hours[k] / maxH;
+      var grad = ctx.createLinearGradient(0, padT + ch - bh, 0, padT + ch);
+      grad.addColorStop(0, 'rgba(226,96,60,0.95)');
+      grad.addColorStop(1, 'rgba(226,96,60,0.35)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(cx - barW / 2, padT + ch - bh, barW, bh);
+
+      ctx.fillStyle = 'rgba(255,158,134,0.95)';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+      ctx.fillText(hours[k].toFixed(1) + 'h', cx - 14, padT + ch - bh - 4);
+
+      ctx.fillStyle = 'rgba(139,152,168,0.95)';
+      ctx.textBaseline = 'top';
+      ctx.fillText(stages[k], cx, padT + ch + 10);
+    }
+
+    // 支撑度折线
+    ctx.beginPath();
+    for (var m = 0; m < cover.length; m++){
+      var x = padL + gw * (m + 0.5) + 20;
+      var y2 = padT + ch - ch * cover[m] / maxC;
+      if (m === 0) ctx.moveTo(x, y2); else ctx.lineTo(x, y2);
+    }
+    ctx.strokeStyle = '#00a0e9'; ctx.lineWidth = 2.2; ctx.stroke();
+
+    for (var n = 0; n < cover.length; n++){
+      var x2 = padL + gw * (n + 0.5) + 20;
+      var y3 = padT + ch - ch * cover[n] / maxC;
+      ctx.beginPath(); ctx.arc(x2, y3, 4, 0, Math.PI * 2);
+      ctx.fillStyle = '#0d1117'; ctx.fill();
+      ctx.lineWidth = 2; ctx.strokeStyle = '#00a0e9'; ctx.stroke();
+      ctx.fillStyle = 'rgba(127,208,245,0.95)';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+      ctx.fillText(String(cover[n]), x2, y3 - 8);
+    }
+
+    // 标注最大缺口
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ctx.fillStyle = 'rgba(255,158,134,0.9)';
+    ctx.fillText('最大缺口：阶段 04 定界定责（人工 5.5h / 系统支撑 25 分）', padL + 6, padT + 4);
+  }
+
+  window.addEventListener('resize', resize);
+  if (window.ResizeObserver) { new ResizeObserver(function(){ resize(); }).observe(cv); }
+  resize();
+})();
+</script>
+</body>
+</html>

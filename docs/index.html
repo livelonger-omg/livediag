@@ -3,29 +3,48 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="0; url=as-is-journey-map.html">
 <title>直播上行质量诊断 · 资料入口</title>
 <style>
-  :root{--bg:#0d1117;--text:#e6edf3;--sub:#8b98a8;--brand:#00a0e9;--line:#243040}
-  html,body{margin:0;height:100%;background:var(--bg);color:var(--text);
-    font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",-apple-system,"Segoe UI",sans-serif}
-  .box{height:100%;display:flex;align-items:center;justify-content:center;padding:24px}
-  .inner{max-width:560px;text-align:center}
+  :root{--bg:#0d1117;--panel:#131a23;--text:#e6edf3;--sub:#8b98a8;--brand:#00a0e9;--line:#243040;--dim:#5d6b7d}
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);
+    font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",-apple-system,"Segoe UI",sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .box{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 24px}
+  .inner{width:100%;max-width:880px}
   .kicker{font-size:12px;letter-spacing:.16em;color:var(--brand)}
-  h1{font-size:22px;margin:12px 0 10px;font-weight:700}
-  p{color:var(--sub);font-size:13.5px;line-height:1.9;margin:0 0 22px}
-  a.btn{display:inline-block;padding:11px 22px;border-radius:10px;background:var(--brand);
-    color:#04121b;font-weight:700;font-size:14px;text-decoration:none}
-  .tip{margin-top:18px;font-size:12px;color:#5d6b7d}
+  h1{font-size:24px;margin:12px 0 10px;font-weight:700}
+  p.lead{color:var(--sub);font-size:13.5px;line-height:1.9;margin:0 0 26px}
+  .list{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  a.item{display:block;padding:18px 20px;border:1px solid var(--line);border-radius:14px;
+    background:var(--panel);text-decoration:none;color:var(--text);transition:border-color .15s,transform .15s}
+  a.item:hover{border-color:rgba(0,160,233,.55);transform:translateY(-2px)}
+  .no{display:inline-block;font-size:10.5px;letter-spacing:.1em;color:var(--brand);
+    border:1px solid rgba(0,160,233,.4);background:rgba(0,160,233,.1);padding:2px 8px;border-radius:999px}
+  a.item b{display:block;font-size:16px;margin:10px 0 6px}
+  .ds{font-size:12.2px;color:var(--sub);line-height:1.8}
+  .tip{margin-top:22px;font-size:12px;color:var(--dim)}
+  @media(max-width:720px){.list{grid-template-columns:1fr}h1{font-size:20px}}
 </style>
 </head>
 <body>
 <div class="box"><div class="inner">
-  <div class="kicker">中国移动湖南公司有线中心 · 立项支撑材料</div>
-  <h1>家宽直播上行质量投诉处理 · 现状用户旅程地图</h1>
-  <p>正在跳转。若未自动打开，请点击下面的按钮。</p>
-  <a class="btn" href="as-is-journey-map.html">打开旅程地图</a>
-  <div class="tip">LiveDiag · As-Is Journey Map v1</div>
+  <div class="kicker">中国移动湖南公司有线中心 · LiveDiag 立项支撑材料</div>
+  <h1>家宽直播上行质量投诉处理</h1>
+  <p class="lead">建议阅读顺序：先看现状旅程地图理解客户在 6 个阶段经历了什么，再看服务蓝图看分层责任、失效点与建设内容映射。</p>
+  <div class="list">
+    <a class="item" href="as-is-journey-map.html">
+      <span class="no">材料一</span>
+      <b>现状用户旅程地图</b>
+      <span class="ds">6 阶段 · 客户视角 · As-Is Journey Map v1</span>
+    </a>
+    <a class="item" href="service-blueprint.html">
+      <span class="no">材料二</span>
+      <b>现状服务蓝图</b>
+      <span class="ds">5 层泳道 + 3 条分界线 · F×15 / W×6 · 含 Gap 分析与本文件 v2</span>
+    </a>
+  </div>
+  <div class="tip">LiveDiag · 现状服务蓝图 v2 · 2026-11-26</div>
 </div></div>
 </body>
 </html>

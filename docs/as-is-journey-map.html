@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>现状用户旅程地图 · 家宽直播上行质量投诉处理</title>
+<style>
+  :root{
+    --bg:#0d1117;
+    --panel:#131a23;
+    --panel2:#18212c;
+    --line:#243040;
+    --text:#e6edf3;
+    --sub:#8b98a8;
+    --dim:#5d6b7d;
+    --brand:#00a0e9;      /* 中国移动蓝 */
+    --brand2:#0086d1;
+    --good:#2fae7a;
+    --warn:#d4913f;
+    --bad:#e2603c;
+    --bad2:#c0392b;
+    --purple:#a97bff;
+    --stage-w:212px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
+    font-family:"Microsoft YaHei UI","Microsoft YaHei","PingFang SC",-apple-system,"Segoe UI",sans-serif;
+    -webkit-font-smoothing:antialiased}
+  a{color:var(--brand);text-decoration:none}
+  .wrap{max-width:1560px;margin:0 auto;padding:28px 24px 64px}
+
+  /* ---------- 头部 ---------- */
+  header.top{border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:22px}
+  .kicker{font-size:12px;letter-spacing:.14em;color:var(--brand);text-transform:uppercase}
+  h1{margin:8px 0 6px;font-size:27px;font-weight:700;letter-spacing:.5px}
+  h1 small{display:block;font-size:14px;font-weight:400;color:var(--sub);margin-top:8px;letter-spacing:0}
+  .meta{display:flex;flex-wrap:wrap;gap:8px 26px;margin-top:14px;font-size:12.5px;color:var(--sub)}
+  .meta b{color:var(--text);font-weight:600}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .badge{font-size:12px;border:1px solid var(--line);background:var(--panel);
+    padding:5px 11px;border-radius:999px;color:var(--sub)}
+  .badge.on{border-color:rgba(0,160,233,.5);color:var(--brand);background:rgba(0,160,233,.10)}
+  .badge.ask{border-color:rgba(212,145,63,.5);color:var(--warn);background:rgba(212,145,63,.10)}
+
+  /* ---------- 人物卡片 ---------- */
+  .cards{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:14px;margin:22px 0 26px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .card.main{border-color:rgba(0,160,233,.38);box-shadow:0 0 0 1px rgba(0,160,233,.08) inset}
+  .card h3{margin:0 0 4px;font-size:14px;color:var(--text)}
+  .card .role{font-size:12px;color:var(--brand);margin-bottom:10px}
+  .card p{margin:0;font-size:12.5px;line-height:1.85;color:var(--sub)}
+  .card p b{color:var(--text);font-weight:600}
+  .tagline{display:inline-block;font-size:11px;padding:2px 8px;border-radius:6px;margin:10px 6px 0 0;
+    border:1px solid var(--line);color:var(--sub)}
+
+  /* ---------- 地图主体 ---------- */
+  .mapbar{display:flex;justify-content:space-between;align-items:flex-end;margin:6px 0 10px}
+  .mapbar h2{margin:0;font-size:16px;letter-spacing:.3px}
+  .mapbar .hint{font-size:12px;color:var(--dim)}
+  .scroller{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+  .grid{display:grid;grid-template-columns:132px repeat(6,var(--stage-w));min-width:1440px}
+  .grid > div{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:12px 14px}
+  .grid > div:nth-child(7n){border-right:none}
+  .rowlabel{background:var(--panel2);font-size:12px;color:var(--sub);display:flex;
+    flex-direction:column;justify-content:center;gap:4px;position:sticky;left:0;z-index:3}
+  .rowlabel b{color:var(--text);font-size:12.5px;font-weight:600}
+  .rowlabel span{font-size:11px;color:var(--dim)}
+
+  .stagehead{background:linear-gradient(180deg,rgba(0,160,233,.14),rgba(0,160,233,.03));
+    display:flex;flex-direction:column;gap:6px}
+  .stagehead .no{font-size:11px;color:var(--brand);letter-spacing:.1em}
+  .stagehead .nm{font-size:14px;font-weight:700}
+  .stagehead .dur{font-size:11px;color:var(--sub)}
+  .stagehead .own{font-size:11px;color:var(--dim)}
+
+  .cell{font-size:12.5px;line-height:1.78;color:var(--text)}
+  .cell ul{margin:0;padding-left:16px}
+  .cell li{margin:0 0 4px}
+  .cell li:last-child{margin-bottom:0}
+  .cell .muted{color:var(--dim)}
+  .touch{display:inline-block;font-size:11.5px;padding:3px 8px;margin:0 5px 6px 0;border-radius:6px;
+    background:rgba(0,160,233,.10);border:1px solid rgba(0,160,233,.28);color:#7fd0f5}
+  .touch.sys{background:rgba(169,123,255,.10);border-color:rgba(169,123,255,.3);color:#c9afff}
+  .touch.man{background:rgba(212,145,63,.10);border-color:rgba(212,145,63,.3);color:#e8bd82}
+  .quote{font-size:12.5px;color:#c7d3e1;font-style:italic;line-height:1.8;margin:0}
+  .quote::before{content:"“";color:var(--dim)}
+  .quote::after{content:"”";color:var(--dim)}
+
+  .pain{display:flex;flex-direction:column;gap:7px}
+  .pain .it{display:flex;gap:8px;font-size:12.5px;line-height:1.6}
+  .pain .dot{width:7px;height:7px;border-radius:50%;flex:0 0 7px;margin-top:6px}
+  .p1{background:var(--bad)} .p2{background:var(--warn)} .p3{background:var(--dim)}
+  .heat{height:5px;border-radius:3px;background:var(--line);overflow:hidden;margin-top:2px}
+  .heat i{display:block;height:100%;background:linear-gradient(90deg,var(--warn),var(--bad))}
+
+  .emo{display:flex;align-items:center;gap:10px;font-size:12.5px}
+  .emo .v{font-variant-numeric:tabular-nums;font-weight:700;font-size:15px;min-width:38px;text-align:center;
+    border-radius:8px;padding:3px 6px}
+  .v-3{background:rgba(192,57,43,.18);color:#ff8f7a;border:1px solid rgba(192,57,43,.45)}
+  .v-2{background:rgba(226,96,60,.14);color:#ff9e86;border:1px solid rgba(226,96,60,.35)}
+  .v-1{background:rgba(212,145,63,.13);color:#e8bd82;border:1px solid rgba(212,145,63,.32)}
+  .v0{background:rgba(139,152,168,.12);color:#aeb9c7;border:1px solid rgba(139,152,168,.3)}
+  .v1{background:rgba(47,174,122,.13);color:#7fd6ab;border:1px solid rgba(47,174,122,.32)}
+  .emo .who{color:var(--sub);font-size:11.5px}
+
+  .kpi{font-size:12px;color:var(--sub);line-height:1.9}
+  .kpi b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}
+
+  /* ---------- 情绪曲线 ---------- */
+  .chartbox{margin:26px 0 0;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px 8px}
+  .chartbox .hd{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+  .chartbox .hd h3{margin:0;font-size:14px}
+  .legend{display:flex;gap:16px;font-size:12px;color:var(--sub)}
+  .legend i{display:inline-block;width:16px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle}
+  canvas{display:block;width:100%;height:260px}
+
+  /* ---------- 机会点 ---------- */
+  .opps{margin-top:26px}
+  .opps h2{font-size:16px;margin:0 0 4px}
+  .opps .sub{font-size:12.5px;color:var(--sub);margin-bottom:14px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;background:var(--panel);
+    border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  th,td{padding:11px 13px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.7}
+  th{background:var(--panel2);font-size:12px;color:var(--sub);font-weight:600;white-space:nowrap}
+  tr:last-child td{border-bottom:none}
+  td.stage{color:var(--brand);white-space:nowrap}
+  .pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;
+    background:rgba(47,174,122,.12);border:1px solid rgba(47,174,122,.32);color:#7fd6ab}
+  .pill.now{background:rgba(0,160,233,.12);border-color:rgba(0,160,233,.34);color:#7fd0f5}
+  .pill.next{background:rgba(139,152,168,.12);border-color:rgba(139,152,168,.3);color:#aeb9c7}
+
+  /* ---------- 问题清单 ---------- */
+  .ask{margin-top:26px;background:var(--panel);border:1px solid rgba(212,145,63,.35);border-radius:12px;padding:16px 20px}
+  .ask h3{margin:0 0 10px;font-size:14px;color:var(--warn)}
+  .ask ol{margin:0;padding-left:20px;font-size:12.8px;line-height:2;color:var(--text)}
+  .ask li b{color:var(--warn)}
+  .ask .note{font-size:12px;color:var(--dim);margin-top:10px;line-height:1.8}
+
+  footer{margin-top:30px;border-top:1px solid var(--line);padding-top:14px;font-size:11.5px;color:var(--dim);line-height:1.9}
+
+  @media (max-width:900px){
+    .cards{grid-template-columns:1fr}
+    .wrap{padding:18px 14px 48px}
+    h1{font-size:21px}
+  }
+  @media print{
+    body{background:#fff;color:#111}
+    .wrap{max-width:none;padding:0}
+    .scroller{overflow:visible;border-color:#ddd}
+    .grid{min-width:0;grid-template-columns:110px repeat(6,1fr)}
+    .card,.chartbox,table,.ask{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="kicker">As-Is Journey Map · 立项支撑材料</div>
+    <h1>家宽直播上行质量投诉处理 · 现状用户旅程地图
+      <small>中国移动湖南公司有线中心 · 直播上行质量在线诊断工具（LiveDiag）项目</small>
+    </h1>
+    <div class="meta">
+      <div>地图类型：<b>现状（As-Is）</b></div>
+      <div>场景：<b>家庭宽带用户反馈“直播卡顿 / 断流 / 码率上不去”</b></div>
+      <div>主线角色：<b>网格/装维工程师</b></div>
+      <div>时间范围：<b>从投诉受理到工单闭环，典型 1～3 个工作日</b></div>
+      <div>地图版本：<b>v1 草案（待与一线确认）</b></div>
+      <div>编制日期：<b>2026-11-26</b></div>
+    </div>
+    <div class="badges">
+      <span class="badge on">6 个阶段</span>
+      <span class="badge on">双情绪曲线（工程师 / 客户）</span>
+      <span class="badge on">痛点 → 机会点 → 能力映射</span>
+      <span class="badge ask">橙色标记项为待确认假设</span>
+      <span class="badge">数据来源：一线访谈 + 工具实测（待补充真实数值）</span>
+    </div>
+  </header>
+
+  <!-- ================= 角色 ================= -->
+  <section class="cards">
+    <div class="card main">
+      <h3>李工 · 网格/装维工程师</h3>
+      <div class="role">主线 Persona ｜ 直播投诉处理的责任人</div>
+      <p>
+        负责 <b>8～15 个小区</b>的家宽维护，日均 4～6 单，其中直播类投诉最难判、最耗时。
+        手上工具：手机工单 App、微信、网管/光衰查询、笔记本上的 ping / tracert、测速网站。
+        <b>目标</b>：尽快给出结论并闭环，避免二次上门和跨部门扯皮。<br>
+        <b>能力边界</b>：懂 ping/测速，但不懂 TCP 抓包、不懂 CDN 调度，
+        手里没有“能证明问题在哪一段”的客观数据。
+      </p>
+      <span class="tagline">每天 4～6 单</span>
+      <span class="tagline">结果导向</span>
+      <span class="tagline">怕返工</span>
+      <span class="tagline">要证据</span>
+    </div>
+    <div class="card">
+      <h3>王女士 · 主播客户</h3>
+      <div class="role">辅线 Persona ｜ 家宽 + 抖音直播</div>
+      <p>
+        在家做带货直播，晚间黄金档 <b>19:00–23:00</b> 开播，抖音直播伴侣推流，
+        码率 4～8 Mbps。判断标准很朴素：<b>画面糊、卡、掉线</b>。
+        投诉时常说“就是你们移动的网不行”，但说不清具体时间点。
+      </p>
+      <span class="tagline">只看体感</span>
+      <span class="tagline">黄金档不能停</span>
+    </div>
+    <div class="card">
+      <h3>值班/后台支撑</h3>
+      <div class="role">协同角色 ｜ 有线中心 + 平台侧</div>
+      <p>
+        负责接入网网管、光功率与线路质量核查、必要时派单到属地。
+        与平台（抖音/CDN）沟通时同样缺少<b>可提交的证据</b>，
+        经常陷入“双方都说自己没问题”。
+      </p>
+      <span class="tagline">跨专业协同</span>
+      <span class="tagline">举证困难</span>
+    </div>
+  </section>
+
+  <!-- ================= 地图 ================= -->
+  <div class="mapbar">
+    <h2>现状旅程（阶段 → 行为 → 触点 → 想法 → 情绪 → 痛点 → 指标）</h2>
+    <div class="hint">横向滚动查看全部 6 个阶段 ｜ 情绪刻度：+2 顺畅 … −3 极度受挫</div>
+  </div>
+
+  <div class="scroller">
+    <div class="grid">
+
+      <!-- 行1：阶段头 -->
+      <div class="rowlabel"><b>阶段</b><span>Phase</span></div>
+      <div class="stagehead"><div class="no">阶段 01 · T+0.5h</div><div class="nm">投诉受理</div><div class="dur">典型 20～40 分钟</div><div class="own">责任：网格经理 / 10086</div></div>
+      <div class="stagehead"><div class="no">阶段 02 · T+4h</div><div class="nm">远程初判</div><div class="dur">典型 1～4 小时</div><div class="own">责任：装维工程师</div></div>
+      <div class="stagehead"><div class="no">阶段 03 · 当日/次日</div><div class="nm">开播复现</div><div class="dur">等待 + 观测 2～6 小时</div><div class="own">责任：工程师 + 客户</div></div>
+      <div class="stagehead"><div class="no">阶段 04 · 关键</div><div class="nm">定界定责</div><div class="dur">2 小时～2 天</div><div class="own">责任：有线中心 + 平台</div></div>
+      <div class="stagehead"><div class="no">阶段 05</div><div class="nm">处置验证</div><div class="dur">1～4 小时（含二次上门）</div><div class="own">责任：属地装维</div></div>
+      <div class="stagehead"><div class="no">阶段 06</div><div class="nm">回访归档</div><div class="dur">0.5～1 小时</div><div class="own">责任：网格 / 客服</div></div>
+
+      <!-- 行2：目标 -->
+      <div class="rowlabel"><b>阶段目标</b><span>Goal</span></div>
+      <div class="cell">接得住、问得清，判断是否属网络问题</div>
+      <div class="cell">不进现场就能排除明显问题（欠费、光衰、设备故障）</div>
+      <div class="cell">在故障真实发生时抓到现场</div>
+      <div class="cell">说清楚“问题在哪一段”，给出责任归属与依据</div>
+      <div class="cell">一次处置到位，客户体感恢复</div>
+      <div class="cell">工单闭环，经验可复用</div>
+
+      <!-- 行3：关键行为 -->
+      <div class="rowlabel"><b>关键行为</b><span>Doing</span></div>
+      <div class="cell">
+        <ul>
+          <li>接收 10086 转单 / 客户群反馈</li>
+          <li>加微信索要：宽带账号、开播时段、设备型号</li>
+          <li>口头指导“先重启光猫和路由器”</li>
+        </ul>
+      </div>
+      <div class="cell">
+        <ul>
+          <li>查宽带在线状态与光功率</li>
+          <li>让客户跑测速、看光猫指示灯</li>
+          <li>自己在笔记本上 ping 网关 / ping 公网</li>
+        </ul>
+      </div>
+      <div class="cell">
+        <ul>
+          <li>与客户约定“你开播的时候叫我”</li>
+          <li>远程语音或上门，等待卡顿出现</li>
+          <li>靠客户描述 + 秒表记录故障时刻</li>
+        </ul>
+      </div>
+      <div class="cell">
+        <ul>
+          <li>手工 <code>tracert</code> / <code>ping</code> 推流服务器 IP</li>
+          <li>凭经验判断：家宽、路由器、接入网、核心网、CDN</li>
+          <li>与其他专业/平台互相举证、扯皮</li>
+        </ul>
+      </div>
+      <div class="cell">
+        <ul>
+          <li>换网线 / 改有线 / 换 5GHz / 重启设备</li>
+          <li>建议客户降码率、换推流节点</li>
+          <li>再次开播验证效果</li>
+        </ul>
+      </div>
+      <div class="cell">
+        <ul>
+          <li>电话回访客户体感</li>
+          <li>在工单里填写处理结论</li>
+          <li>截图/照片归档（若记得）</li>
+        </ul>
+      </div>
+
+      <!-- 行4：触点 -->
+      <div class="rowlabel"><b>触点与系统</b><span>Touchpoints</span></div>
+      <div class="cell">
+        <span class="touch sys">10086 工单</span><span class="touch">微信 / 电话</span><span class="touch sys">宽带账号系统</span>
+      </div>
+      <div class="cell">
+        <span class="touch sys">网管 / 光功率查询</span><span class="touch">测速网站 / App</span><span class="touch man">CMD ping</span>
+      </div>
+      <div class="cell">
+        <span class="touch">抖音直播伴侣</span><span class="touch">微信语音</span><span class="touch man">远程桌面（偶用）</span>
+      </div>
+      <div class="cell">
+        <span class="touch man">CMD tracert</span><span class="touch man">CMD ping</span><span class="touch sys">网管系统</span><span class="touch">平台客服 / 内部群</span>
+      </div>
+      <div class="cell">
+        <span class="touch">光猫 / 路由器</span><span class="touch">直播伴侣设置</span><span class="touch sys">装维工单 App</span>
+      </div>
+      <div class="cell">
+        <span class="touch sys">工单系统</span><span class="touch">客服回访</span><span class="touch man">Excel / 照片</span>
+      </div>
+
+      <!-- 行5：想法 -->
+      <div class="rowlabel"><b>典型想法</b><span>Thinking</span></div>
+      <div class="cell"><p class="quote">又是直播卡，先让他重启试试，能好就不用跑了。</p></div>
+      <div class="cell"><p class="quote">测速有 300M，下行没问题……但直播用的是上行啊。</p></div>
+      <div class="cell"><p class="quote">我得守着他开播才能看到，可卡顿就那几十秒，抓不住。</p></div>
+      <div class="cell"><p class="quote">到底是我们的网还是抖音的问题？我拿不出证据，只能被推回来。</p></div>
+      <div class="cell"><p class="quote">先换了再说，反正都是常规动作。</p></div>
+      <div class="cell"><p class="quote">报告没法自动出，凭印象写两句，下次还得从头查。</p></div>
+
+      <!-- 行6：痛点 -->
+      <div class="rowlabel"><b>痛点</b><span>Pains</span></div>
+      <div class="cell pain">
+        <div class="it"><span class="dot p2"></span><span>客户描述模糊，无客观数据；开播时段/设备信息靠反复问</span></div>
+        <div class="heat"><i style="width:45%"></i></div>
+      </div>
+      <div class="cell pain">
+        <div class="it"><span class="dot p1"></span><span>测速只测下行，掩盖上行问题；ping 只能证明“到公网通不通”</span></div>
+        <div class="it"><span class="dot p2"></span><span>客户不会操作，远程指导成本高</span></div>
+        <div class="heat"><i style="width:70%"></i></div>
+      </div>
+      <div class="cell pain">
+        <div class="it"><span class="dot p1"></span><span><b>抓不到故障现场</b>：卡顿瞬时发生，事后无法回溯</span></div>
+        <div class="it"><span class="dot p2"></span><span>反复约时间，黄金档也不能随时配合</span></div>
+        <div class="heat"><i style="width:80%"></i></div>
+      </div>
+      <div class="cell pain">
+        <div class="it"><span class="dot p1"></span><span><b>无法定界</b>：缺少“本机 / 网关 / 接入网 / 推流节点”的分段质量证据</span></div>
+        <div class="it"><span class="dot p1"></span><span>跨专业与平台互相推诿，缺可提交的报告</span></div>
+        <div class="heat"><i style="width:100%"></i></div>
+      </div>
+      <div class="cell pain">
+        <div class="it"><span class="dot p2"></span><span>试错式处置，缺少处置前后对比</span></div>
+        <div class="it"><span class="dot p3"></span><span>同类问题重复发生，仍从头查</span></div>
+        <div class="heat"><i style="width:60%"></i></div>
+      </div>
+      <div class="cell pain">
+        <div class="it"><span class="dot p2"></span><span>归档无数据，考核与复盘缺量化依据</span></div>
+        <div class="it"><span class="dot p3"></span><span>经验停留在个人，无法沉淀为方法</span></div>
+        <div class="heat"><i style="width:50%"></i></div>
+      </div>
+
+      <!-- 行7：情绪 -->
+      <div class="rowlabel"><b>情绪</b><span>Feeling</span></div>
+      <div class="cell"><div class="emo"><span class="v v-1">−1</span><span class="who">工程师：又是这类单子<br>客户：还没解决，先等等</span></div></div>
+      <div class="cell"><div class="emo"><span class="v v-2">−2</span><span class="who">工程师：查不出所以然<br>客户：越测越糊涂</span></div></div>
+      <div class="cell"><div class="emo"><span class="v v-2">−2</span><span class="who">工程师：守不到现场<br>客户：又要配合折腾</span></div></div>
+      <div class="cell"><div class="emo"><span class="v v-3">−3</span><span class="who">工程师：被推诿、举证无力<br>客户：开始质疑“移动的网”</span></div></div>
+      <div class="cell"><div class="emo"><span class="v v-1">−1</span><span class="who">工程师：先试再说<br>客户：略有改善但不敢信</span></div></div>
+      <div class="cell"><div class="emo"><span class="v v1">+1</span><span class="who">工程师：单子关了<br>客户：没再卡就算好</span></div></div>
+
+      <!-- 行8：量化指标 -->
+      <div class="rowlabel"><b>现状指标</b><span>待核实</span></div>
+      <div class="cell kpi">受理响应时长 <b>≤30 分钟</b></div>
+      <div class="cell kpi">远程可直接解决 <b>约 20%</b></div>
+      <div class="cell kpi">故障复现成功率 <b>约 40%</b><br>平均约测 <b>2 次</b></div>
+      <div class="cell kpi">跨专业定界耗时 <b>约 6 小时</b><br>可提供客观证据 <b>&lt;10%</b></div>
+      <div class="cell kpi">重复上门率 <b>约 30%</b></div>
+      <div class="cell kpi">闭环及时率 <b>约 85%</b><br>复盘覆盖率 <b>极低</b></div>
+
+    </div>
+  </div>
+
+  <!-- ================= 情绪曲线 ================= -->
+  <div class="chartbox">
+    <div class="hd">
+      <h3>情绪曲线（现状）</h3>
+      <div class="legend">
+        <span><i style="background:#e2603c"></i>客户</span>
+        <span><i style="background:#00a0e9"></i>装维工程师</span>
+        <span><i style="background:#5d6b7d"></i>阶段分界</span>
+      </div>
+    </div>
+    <canvas id="emo" aria-label="情绪曲线：客户与工程师在六个阶段的情绪变化"></canvas>
+  </div>
+
+  <!-- ================= 机会点 ================= -->
+  <section class="opps">
+    <h2>痛点 → 机会点 → 已具备能力（立项落点）</h2>
+    <div class="sub">右列对应 LiveDiag 现有版本已实现的能力，可直接作为项目建设内容与验收依据。</div>
+    <table>
+      <thead>
+        <tr><th>阶段</th><th>核心痛点</th><th>机会点（设计原则）</th><th>对应能力 / 现状</th><th>状态</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="stage">02 远程初判</td>
+          <td>测速只看下行，无法判断上行能力与链路质量</td>
+          <td>把“上行”作为一等公民：码率、上行 RTT、上行丢包同屏可见</td>
+          <td>整机上行 / 推流上行 / 网关与接入跳 RTT、丢包实时看板</td>
+          <td><span class="pill now">已实现</span></td>
+        </tr>
+        <tr>
+          <td class="stage">03 开播复现</td>
+          <td>抓不到故障现场，靠人工守点</td>
+          <td>现场零操作：程序常驻、自动识别开播并开始记录</td>
+          <td>开机自启 + 托盘常驻；自动识别推流进程（TCP 443/1935、IPv6、UDP）；会话自动开始/结束、断流自动记录</td>
+          <td><span class="pill now">已实现</span></td>
+        </tr>
+        <tr>
+          <td class="stage">04 定界定责</td>
+          <td>无法说清“问题在哪一段”</td>
+          <td>按网络分段给出证据：本机 → 网关 → 接入网 → 推流节点</td>
+          <td>自动逐跳定位“网关之后第一跳”并持续测时延/抖动/丢包；与网关、推流节点 RTT/丢包并列对比；异常自动生成归因结论</td>
+          <td><span class="pill now">已实现</span></td>
+        </tr>
+        <tr>
+          <td class="stage">04 定界定责</td>
+          <td>举证无力，跨专业/平台推诿</td>
+          <td>一键产出可外发的证据包</td>
+          <td>HTML 诊断报告（含曲线、KPI、结论、事件时间线）+ CSV 原始数据 + 现场连接快照</td>
+          <td><span class="pill now">已实现</span></td>
+        </tr>
+        <tr>
+          <td class="stage">04 定界定责</td>
+          <td>识别不到推流程序时无从下手</td>
+          <td>失败也要留证据：记录当时全部连接与进程写出</td>
+          <td>“整机在上行但识别不到推流进程”事件 + data\diag 连接明细快照</td>
+          <td><span class="pill now">已实现</span></td>
+        </tr>
+        <tr>
+          <td class="stage">05 处置验证</td>
+          <td>处置前后无对比，靠体感判断</td>
+          <td>同一会话内形成“处置前—处置后”对照</td>
+          <td>会话内质量分与曲线连续记录，处置动作可直接对照前后指标</td>
+          <td><span class="pill now">已实现</span></td>
+        </tr>
+        <tr>
+          <td class="stage">06 回访归档</td>
+          <td>归档无数据、经验不沉淀</td>
+          <td>报告即档案：会话索引 + 报告长期留存</td>
+          <td>sessions.tsv 索引 + 报告保留 180 天 + 质量分/首要原因字段</td>
+          <td><span class="pill now">已实现</span></td>
+        </tr>
+        <tr>
+          <td class="stage">全流程</td>
+          <td>工具与工单、网管割裂</td>
+          <td>诊断结果回填工单，形成数据闭环</td>
+          <td>当前为本地单机版，尚无接口</td>
+          <td><span class="pill next">建议二期</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ================= 待确认 ================= -->
+  <section class="ask">
+    <h3>需要与您确认的 4 个问题（决定 v2 地图是否准确）</h3>
+    <ol>
+      <li><b>主线角色是否正确？</b>现在按“网格/装维工程师”作为主 persona。若实际是<b>有线中心值班工程师远程支撑</b>为主、装维只负责上门执行，阶段责任与触点需要重排。</li>
+      <li><b>流程是否缺少分支？</b>是否需要补“派单/预约上门”“政企专线/商宽直播”“直播基地/多机位”等分支？这些场景的痛点和阶段数量会不同。</li>
+      <li><b>现状指标能否给真实值？</b>表中“远程解决率 20%”“重复上门率 30%”“定界耗时 6 小时”等为估算示例，若有工单系统统计口径（如平均处理时长、一次解决率），请提供，我替换为真实数据。</li>
+      <li><b>是否需要 To-Be 对照版？</b>立项评审通常需要“现状 vs 部署后”对比 + 效益测算（减少上门次数、缩短定界时长、降低重复投诉）。我可以在地图右侧加一列“部署后阶段变化”。</li>
+    </ol>
+    <div class="note">
+      另外：地图中的“情绪值”为访谈式主观评分（−3 ～ +2），用于排序痛点优先级，不作为考核指标；所有标注“待核实”的数字均需以工单系统真实统计替换。
+    </div>
+  </section>
+
+  <footer>
+    绘制方法：以真实任务流为主线，按“阶段 → 目标 → 行为 → 触点 → 想法 → 情绪 → 痛点 → 指标”逐层展开，再由痛点反推机会点与本项目能力映射；情绪曲线用于识别体验低谷（当前低谷集中在阶段 04 定界定责）。<br>
+    中国移动湖南公司有线中心 · 直播上行质量在线诊断工具项目 · 现状用户旅程地图 v1 草案 · 2026-11-26
+  </footer>
+</div>
+
+<script>
+(function(){
+  var canvas = document.getElementById('emo');
+  var ctx = canvas.getContext('2d');
+
+  var stages = ['01 投诉受理','02 远程初判','03 开播复现','04 定界定责','05 处置验证','06 回访归档'];
+  var customer = [-1, -2, -2, -2, -1,  1];
+  var engineer = [-1, -1, -2, -3, -1,  0];
+  var minV = -3, maxV = 2;
+
+  function resize(){
+    var dpr = window.devicePixelRatio || 1;
+    var w = canvas.clientWidth;
+    var h = canvas.clientHeight;
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    draw(w, h);
+  }
+
+  function draw(w, h){
+    var padL = 62, padR = 26, padT = 22, padB = 46;
+    var cw = w - padL - padR;
+    var ch = h - padT - padB;
+    ctx.clearRect(0, 0, w, h);
+
+    function yOf(v){ return padT + (maxV - v) / (maxV - minV) * ch; }
+    function xOf(i){ return padL + (cw * (i + 0.5)) / stages.length; }
+
+    // 阶段底色交替
+    for (var i = 0; i < stages.length; i++){
+      if (i % 2 === 0){
+        ctx.fillStyle = 'rgba(255,255,255,0.018)';
+        ctx.fillRect(padL + cw * i / stages.length, padT, cw / stages.length, ch);
+      }
+    }
+
+    // 横向刻度线
+    ctx.font = '11px "Microsoft YaHei UI","Microsoft YaHei",sans-serif';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    for (var v = maxV; v >= minV; v--){
+      var y = yOf(v);
+      ctx.beginPath();
+      ctx.strokeStyle = v === 0 ? 'rgba(0,160,233,0.35)' : 'rgba(255,255,255,0.055)';
+      ctx.lineWidth = 1;
+      ctx.moveTo(padL, y);
+      ctx.lineTo(padL + cw, y);
+      ctx.stroke();
+      ctx.fillStyle = v === 0 ? 'rgba(0,160,233,0.9)' : 'rgba(139,152,168,0.75)';
+      ctx.fillText(v > 0 ? '+' + v : String(v), padL - 12, y);
+    }
+
+    // 阶段分界与标签
+    ctx.textAlign = 'center';
+    for (var s = 0; s < stages.length; s++){
+      var x = padL + cw * (s + 1) / stages.length;
+      if (s < stages.length - 1){
+        ctx.beginPath();
+        ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+        ctx.moveTo(x, padT);
+        ctx.lineTo(x, padT + ch);
+        ctx.stroke();
+      }
+      ctx.fillStyle = 'rgba(139,152,168,0.95)';
+      ctx.fillText(stages[s], padL + cw * (s + 0.5) / stages.length, padT + ch + 20);
+    }
+
+    // 低谷阴影（阶段04）
+    var lowX0 = padL + cw * 3 / stages.length, lowX1 = padL + cw * 4 / stages.length;
+    var g = ctx.createLinearGradient(lowX0, 0, lowX1, 0);
+    g.addColorStop(0, 'rgba(226,96,60,0)');
+    g.addColorStop(0.5, 'rgba(226,96,60,0.12)');
+    g.addColorStop(1, 'rgba(226,96,60,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(lowX0, padT, lowX1 - lowX0, ch);
+
+    function curve(data, color, fill){
+      var pts = data.map(function(v, i){
+        return { x: xOf(i), y: yOf(v) };
+      });
+      // 平滑：三次贝塞尔（水平控制点）
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x, pts[0].y);
+      for (var i = 0; i < pts.length - 1; i++){
+        var p0 = pts[i], p1 = pts[i + 1];
+        var cx = (p0.x + p1.x) / 2;
+        ctx.bezierCurveTo(cx, p0.y, cx, p1.y, p1.x, p1.y);
+      }
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2.4;
+      ctx.lineJoin = 'round';
+      ctx.stroke();
+
+      if (fill){
+        ctx.lineTo(pts[pts.length - 1].x, yOf(minV));
+        ctx.lineTo(pts[0].x, yOf(minV));
+        ctx.closePath();
+        var fg = ctx.createLinearGradient(0, padT, 0, padT + ch);
+        fg.addColorStop(0, fill);
+        fg.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = fg;
+        ctx.fill();
+      }
+
+      // 数据点
+      for (var k = 0; k < pts.length; k++){
+        ctx.beginPath();
+        ctx.arc(pts[k].x, pts[k].y, 4, 0, Math.PI * 2);
+        ctx.fillStyle = '#0d1117';
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = color;
+        ctx.stroke();
+      }
+      return pts;
+    }
+
+    var cp = curve(customer, '#e2603c', 'rgba(226,96,60,0.16)');
+    var ep = curve(engineer, '#00a0e9', 'rgba(0,160,233,0.13)');
+
+    // 标注最低点（放在数据点上方，避免压住阶段标签）
+    var lowIdx = 3;
+    ctx.beginPath();
+    ctx.arc(ep[lowIdx].x, ep[lowIdx].y, 9, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(0,160,233,0.45)';
+    ctx.lineWidth = 1.4;
+    ctx.stroke();
+
+    ctx.font = '11.5px "Microsoft YaHei UI","Microsoft YaHei",sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.fillStyle = 'rgba(255,143,122,0.95)';
+    ctx.fillText('体验低谷：定界定责（工程师 −3）', ep[lowIdx].x, ep[lowIdx].y - 13);
+    ctx.textBaseline = 'middle';
+  }
+
+  window.addEventListener('resize', resize);
+  if (window.ResizeObserver){
+    new ResizeObserver(function(){ resize(); }).observe(canvas);
+  }
+  resize();
+})();
+</script>
+</body>
+</html>

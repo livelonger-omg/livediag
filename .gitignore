@@ -18,6 +18,9 @@ learning.tsv
 bin/
 obj/
 
+# ---- 本地预览服务器日志 ----
+*.log
+
 # ---- 系统/编辑器 ----
 Thumbs.db
 desktop.ini

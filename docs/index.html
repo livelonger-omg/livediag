@@ -23,6 +23,12 @@
     border:1px solid rgba(0,160,233,.4);background:rgba(0,160,233,.1);padding:2px 8px;border-radius:999px}
   a.item b{display:block;font-size:16px;margin:10px 0 6px}
   .ds{font-size:12.2px;color:var(--sub);line-height:1.8}
+  a.item.wide{grid-column:1/-1;border-color:rgba(0,160,233,.38);
+    background:linear-gradient(135deg,rgba(0,160,233,.12),rgba(0,160,233,.02))}
+  a.item.wide b{color:#7fd0f5}
+  .live{display:inline-block;font-size:10px;letter-spacing:.08em;color:#7fd6ab;
+    border:1px solid rgba(47,174,122,.4);background:rgba(47,174,122,.12);
+    padding:1px 7px;border-radius:999px;margin-left:8px;vertical-align:1px}
   .tip{margin-top:22px;font-size:12px;color:var(--dim)}
   @media(max-width:720px){.list{grid-template-columns:1fr}h1{font-size:20px}}
 </style>
@@ -31,7 +37,7 @@
 <div class="box"><div class="inner">
   <div class="kicker">中国移动湖南公司有线中心 · LiveDiag 立项支撑材料</div>
   <h1>家宽直播上行质量投诉处理</h1>
-  <p class="lead">建议阅读顺序：先看现状旅程地图理解客户在 6 个阶段经历了什么，再看服务蓝图看分层责任、失效点与建设内容映射。</p>
+  <p class="lead">建议阅读顺序：先看现状旅程地图理解客户在 6 个阶段经历了什么，再看现状服务蓝图看分层责任、失效点与建设内容映射，最后进交互原型编辑目标态。</p>
   <div class="list">
     <a class="item" href="as-is-journey-map.html">
       <span class="no">材料一</span>
@@ -41,10 +47,15 @@
     <a class="item" href="service-blueprint.html">
       <span class="no">材料二</span>
       <b>现状服务蓝图</b>
-      <span class="ds">5 层泳道 + 3 条分界线 · F×15 / W×6 · 含 Gap 分析与本文件 v2</span>
+      <span class="ds">5 层泳道 + 3 条分界线 · F×15 / W×6 · 含 Gap 分析 · v2</span>
+    </a>
+    <a class="item wide" href="prototype/index.html">
+      <span class="no">原型</span>
+      <b>目标服务蓝图工作台<span class="live">可交互</span></b>
+      <span class="ds">Vue 3 + Pinia + Element Plus · 蓝图看板 / 失效点 / 指标 SLA / 差距与建设 · 数据存本机 localStorage，可导入导出</span>
     </a>
   </div>
-  <div class="tip">LiveDiag · 现状服务蓝图 v2 · 2026-11-26</div>
+  <div class="tip">LiveDiag · 服务蓝图 v2 + To-Be 原型 · 2026-11-27</div>
 </div></div>
 </body>
 </html>

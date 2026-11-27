@@ -26,3 +26,9 @@ Thumbs.db
 desktop.ini
 .idea/
 .vscode/
+
+# ---- Vue 原型（源码在 prototype/，构建产物提交到 docs/prototype）----
+/prototype/node_modules/
+/prototype/preview.log
+/prototype/*.png
+.playwright-cli/
